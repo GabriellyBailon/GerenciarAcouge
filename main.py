@@ -9,6 +9,8 @@ st.set_page_config(
 
 st.title("Bem vindo ao Meu Açougue Online! 👋")
 
-ms.Login()
-
-calculadora_acougue.CalcularMargem()
+if not ms.is_logged_in():
+        ms.Login()  # Exibe a tela de login
+else:
+    st.sidebar.success(f"Logado como: {st.session_state['user']}")
+    calculadora_acougue.CalcularMargem()

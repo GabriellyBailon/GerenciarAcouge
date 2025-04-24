@@ -30,7 +30,7 @@ def create_user(username, password):
 def login_user(username, password):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT password_hash FROM users WHERE username = %s", (username,))
+    cursor.execute("SELECT hash FROM Usuarios WHERE nome = %s", (username,))
     result = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -39,26 +39,21 @@ def login_user(username, password):
         return True
     return False
 
+# Função de verificação de logindef is_logged_in():
+def is_logged_in():
+    return st.session_state.get("logged_in", False)
+
 def Login():
-    # Interface Streamlit
-    st.title("Login Seguro com Streamlit + MySQL")
+    st.title("Login")
+    username = st.text_input("Nome")
+    password = st.text_input("Senha", type="password")
 
-    menu = st.sidebar.selectbox("Menu", ["Login", "Cadastro"])
-
-    if menu == "Cadastro":
-        st.subheader("Criar Conta")
-        user = st.text_input("Usuário")
-        pwd = st.text_input("Senha", type="password")
-        if st.button("Cadastrar"):
-            create_user(user, pwd)
-            st.success("Usuário criado com sucesso!")
-
-    elif menu == "Login":
-        st.subheader("Login")
-        user = st.text_input("Usuário")
-        pwd = st.text_input("Senha", type="password")
-        if st.button("Entrar"):
-            if login_user(user, pwd):
-                st.success(f"Bem-vindo, {user}!")
-            else:
-                st.error("Usuário ou senha inválidos.")
+    if st.button("Login"):
+        user = login_user(username, password)
+        if user:
+            st.session_state["logged_in"] = True
+            st.session_state["user"] = username
+            st.success("Login bem-sucedido!")
+            st.rerun()  # Força atualização da tela
+        else:
+            st.error("Usuário ou senha inválidos")
