@@ -20,4 +20,5 @@ def CalcularMargem():
 
         total = valorASerAtingido / pesoVendavel
 
+        st.success(f"O peso final sem a quebra é de {pesoVendavel:.2f} quilos.")
         st.success(f"Valor ideal para o quilo da {nome} é de R${total:.2f}")
