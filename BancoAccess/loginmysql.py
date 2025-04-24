@@ -57,3 +57,43 @@ def Login():
             st.rerun()  # Força atualização da tela
         else:
             st.error("Usuário ou senha inválidos")
+
+# Função para verificar permissões do usuário (apenas admin pode cadastrar)
+def is_admin(username):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    query = "SELECT idpermissoes FROM Usuarios WHERE nome = %s"
+    cursor.execute(query, (username,))
+    result = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+
+    # Se o idpermissoes for 1, é admin
+    print(result)
+    return result and int(result[0]) == 1
+
+# Função para cadastrar um novo usuário (só admin pode)
+def register_user():
+    if is_admin(st.session_state['user']):
+        st.title("Cadastro de Usuário")
+        username = st.text_input("Nome de usuário")
+        password = st.text_input("Senha", type="password")
+        password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+
+        if st.button("Cadastrar"):
+            connection = get_connection()
+            cursor = connection.cursor()
+
+            # Inserir novo usuário no banco
+            query = "INSERT INTO Usuarios (nome, hash, idpermissoes) VALUES (%s, %s, %s)"
+            cursor.execute(query, (username, password_hash, 2))  # 2 é um nível de permissão normal
+            connection.commit()
+
+            cursor.close()
+            connection.close()
+
+            st.success(f"Usuário {username} cadastrado com sucesso!")
+    else:
+        st.error("Apenas administradores podem cadastrar novos usuários.")
